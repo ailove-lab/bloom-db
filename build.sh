@@ -1,88 +1,24 @@
 #!/bin/bash
 
-#clang -O0 -g3 -Wall -std=c99 -o indexer-cuckoo         \
-#-I./cuckoo/libcuckoofilter/include           \
-#./cuckoo/libcuckoofilter/src/cuckoo_filter.c \
-#indexer-cuckoo.c                             \
+cf="-Ofast -Wall -D __linux__"
+lf="-pthread -lm"
 
-# clang -pg -Wall -o indexer         \
-# clang -Ofast -Wall -o indexer      \
-# -I./libbloom -I./libbloom/murmur2  \
-# -D __linux__                       \
-# indexer.c                          \
-# kthread.c dstr.c timer.c map.c     \
-# ./libbloom/bloom.c                 \
-# ./libbloom/linux.c                 \
-# ./libbloom/murmur2/MurmurHash2.c   \
-# -pthread -lm
+bloom_pth="./lib/libbloom"
+bloom_src="$bloom_pth/bloom.c $bloom_pth/linux.c $bloom_pth/murmur2/MurmurHash2.c"
+bloom_inc="-I$bloom_pth -I$bloom_pth/murmur2"
 
-clang -Ofast -Wall -o indexer-bloom \
--I./libbloom -I./libbloom/murmur2   \
--D __linux__                        \
-indexer-bloom.c                     \
-kthread.c timer.c                   \
-./libbloom/bloom.c                  \
-./libbloom/linux.c                  \
-./libbloom/murmur2/MurmurHash2.c    \
--pthread -lm
+klib_pth="./lib/klib"
+klib_inc="-I$klib_pth"
 
-clang -Ofast -Wall -o query-bloom   \
--I./libbloom -I./libbloom/murmur2   \
--D __linux__                        \
-query-bloom.c                       \
-kthread.c timer.c                   \
-./libbloom/bloom.c                  \
-./libbloom/linux.c                  \
-./libbloom/murmur2/MurmurHash2.c    \
--pthread -lm
- 
-clang -Ofast -Wall -o info-bloom   \
--I./libbloom -I./libbloom/murmur2   \
--D __linux__                        \
-info-bloom.c                       \
-./libbloom/bloom.c                  \
-./libbloom/linux.c                  \
-./libbloom/murmur2/MurmurHash2.c    \
--lm
+clang $cf -o stat-pip $klib_inc stat.c
 
-clang -Ofast -Wall -o entries-bloom   \
--I./libbloom -I./libbloom/murmur2   \
--D __linux__                        \
-entries-bloom.c                       \
-./libbloom/bloom.c                  \
-./libbloom/linux.c                  \
-./libbloom/murmur2/MurmurHash2.c    \
--lm
+clang $cf -o indexer $bloom_inc $klib_inc \
+indexer.c timer.c \
+$bloom_src $klib_pth/kthread.c $lf
 
-# clang -Ofast -Wall -o bloom-info    \
-# -I./libbloom -I./libbloom/murmur2   \
-# -D __linux__                        \
-# bloom-info.c                        \
-# ./libbloom/bloom.c                  \
-# ./libbloom/linux.c                  \
-# ./libbloom/murmur2/MurmurHash2.c    \
-# -lm
+clang $cf -o query $bloom_inc $klib_inc \
+query.c timer.c \
+$bloom_src $klib_pth/kthread.c $lf
 
-# clang -Ofast -Wall -o test_bloom_load \
-# -I./libbloom -I./libbloom/murmur2  \
-# -D __linux__                       \
-# test_bloom_load.c                  \
-# ./libbloom/bloom.c                 \
-# ./libbloom/linux.c                 \
-# ./libbloom/murmur2/MurmurHash2.c   \
-# -pthread -lm
-
-# gcc -Ofast -pg -Wall -o indexer    \
-# -I./libbloom -I./libbloom/murmur2  \
-# -D __linux__                       \
-# indexer.c                          \
-# kthread.c dstr.c timer.c map.c     \
-# ./libbloom/bloom.c                 \
-# ./libbloom/linux.c                 \
-# ./libbloom/murmur2/MurmurHash2.c   \
-# -pthread -lm
-
-# clang -Ofast -Wall -o stat-pipe stat-pipe.c
-
-# clang -O3 -o everser everser.c kthread.c -pthread -lm
-# clang -O3 -o stat stat.c
+clang $cf -o info $bloom_inc \
+info.c $bloom_src $lf
