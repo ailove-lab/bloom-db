@@ -1,7 +1,7 @@
 # libbloom
 Bloom based statistical DB
 
-Вероятность возникновения 0 ошибок в зависимости от k (числа фильтров)
+Вероятность возникновения 0 ошибок в зависимости от n (общего числа фильтров)
 
 ![](https://raw.githubusercontent.com/ailove-lab/bloom-db/master/img/err-0.png)
 
