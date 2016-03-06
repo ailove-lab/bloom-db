@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
     if(argc != 2) return printf("set bloom size\n");
 
     struct bloom* bloom = (struct bloom*) calloc(1, sizeof(struct bloom));
-    bloom_init(bloom, atoi(argv[1]), 0.01);
+    bloom_init(bloom, atoi(argv[1]), 0.0001);
     
     char* line = NULL;
     size_t len =0;

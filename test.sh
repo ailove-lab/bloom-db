@@ -3,7 +3,7 @@
 cf="-Ofast -Wall -D __linux__"
 lf="-pthread -lm"
 
-bloom_pth="./lib/libbloom"
+bloom_pth="./lib/jvirkki-libbloom"
 bloom_src="$bloom_pth/bloom.c $bloom_pth/linux.c $bloom_pth/murmur2/MurmurHash2.c"
 bloom_inc="-I$bloom_pth -I$bloom_pth/murmur2"
 

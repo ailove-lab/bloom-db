@@ -4,20 +4,23 @@
 
 #include "bloom.h"
 
-#define SIZE 10000000
 #define STRS 24
 
 static char* rand_string(char*, size_t);
 
 int main(int argc, char** argv) {
 
+    if (argc!=2) return printf("usage: test_libbloom entries\n");
+
+    int entries = atoi(argv[1]);
+
     int seed = time(NULL);
     srand(seed);
     
     char str[STRS];
     struct bloom* bloom = (struct bloom*) calloc(1, sizeof(struct bloom));
-    bloom_init(bloom, SIZE, 0.01);
-    for (int i = 0; i < SIZE; ++i) {
+    bloom_init(bloom, entries, 0.0001);
+    for (int i = 0; i < entries; ++i) {
         rand_string(str, STRS);
         bloom_add(bloom, str, STRS);
         // printf("%s\n", str);
