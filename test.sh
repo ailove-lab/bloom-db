@@ -12,3 +12,6 @@ klib_inc="-I$klib_pth"
 
 clang $cf -o test_libbloom $bloom_inc \
 test_libbloom.c $bloom_src $lf
+
+clang $cf -o test_libbloom_pipe $bloom_inc \
+test_libbloom_pipe.c $bloom_src $lf
