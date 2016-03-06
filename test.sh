@@ -10,18 +10,5 @@ bloom_inc="-I$bloom_pth -I$bloom_pth/murmur2"
 klib_pth="./lib/klib"
 klib_inc="-I$klib_pth"
 
-clang $cf -o stat $klib_inc stat.c
-
-clang $cf -o indexer $bloom_inc $klib_inc \
-indexer.c timer.c \
-$bloom_src $klib_pth/kthread.c $lf
-
-clang $cf -o query $bloom_inc $klib_inc \
-query.c timer.c \
-$bloom_src $klib_pth/kthread.c $lf
-
-clang $cf -o info $bloom_inc \
-info.c $bloom_src $lf
-
 clang $cf -o test_libbloom $bloom_inc \
 test_libbloom.c $bloom_src $lf
