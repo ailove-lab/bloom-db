@@ -26,6 +26,7 @@ main(void) {
                 bloomfilter = malloc(sizeof(struct bloomfilter) + b);
                 bloomfilter_init(bloomfilter, b << 3, (uint)ceil(k));
 
+                #pragma omp parallel for
                 for (int i=0; i<n; i++) {
                         rand_string(key, 24);
                         bloomfilter_set(bloomfilter, key, 21);
@@ -33,6 +34,7 @@ main(void) {
 
                 // collisions
                 int c = 0;
+                #pragma omp parallel for
                 for (int i=0; i<n; i++) {
                         rand_string(key, 24);
                         if(bloomfilter_get(bloomfilter, key, 21)) c++;
