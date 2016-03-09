@@ -1,4 +1,4 @@
-CC = gcc
+CC = clang 
 
 default: main test
 
