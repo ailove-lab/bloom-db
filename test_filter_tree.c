@@ -11,7 +11,7 @@ int load_stat(char* filename);
 int main(int argc, char** argv) {
 
     struct ft_tree_t* tree = ft_grow_file("./data/100k.stat");
-    ft_print(tree->root);
+    ft_print_tree(tree);
     ft_free_tree(tree);
 
     return 0;

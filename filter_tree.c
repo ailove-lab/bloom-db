@@ -8,7 +8,7 @@
 struct ft_trunk_t* 
 ft_grow_list(uint32_t* buf_names, uint64_t* buf_integral, uint16_t len, struct ft_trunk_t** stack, uint8_t stack_size){
     
-    struct ft_trunk_t* trunk = (struct ft_trunk_t*) malloc(sizeof(struct ft_trunk_t));
+    struct ft_trunk_t* trunk = (struct ft_trunk_t*) calloc(1, sizeof(struct ft_trunk_t));
     stack[stack_size++] = trunk;
 
     uint64_t size = buf_integral[len]-buf_integral[0];
@@ -20,7 +20,7 @@ ft_grow_list(uint32_t* buf_names, uint64_t* buf_integral, uint16_t len, struct f
         trunk->leaf_name = buf_names[0];
         trunk->branches[0]=NULL;
         trunk->branches[1]=NULL;
-        trunk->parents = (struct ft_trunk_t**) malloc(stack_size * sizeof(struct ft_trunk_t*));
+        trunk->parents = (struct ft_trunk_t**) calloc(stack_size, sizeof(struct ft_trunk_t*));
         trunk->parents_size = stack_size-1;
         memcpy(trunk->parents, stack, (stack_size-1) * sizeof(struct ft_trunk_t*));
     
@@ -45,9 +45,11 @@ ft_grow_list(uint32_t* buf_names, uint64_t* buf_integral, uint16_t len, struct f
 struct ft_tree_t* 
 ft_grow_file(char* filename) {
 
-    struct ft_tree_t* tree = (struct ft_tree_t*) malloc(sizeof(struct ft_tree_t)); 
-    tree->buf_names    = (uint32_t*) malloc(MAX_STAT_SIZE * sizeof(uint32_t));
-    tree->buf_integral = (uint64_t*) malloc(MAX_STAT_SIZE * sizeof(uint64_t));
+    struct ft_tree_t* tree = 
+        (struct ft_tree_t*) malloc(sizeof(struct ft_tree_t)); 
+    
+    tree->buf_names    = (uint32_t*) calloc(MAX_STAT_SIZE, sizeof(uint32_t));
+    tree->buf_integral = (uint64_t*) calloc(MAX_STAT_SIZE, sizeof(uint64_t));
 
     FILE * fp;
     char * line = NULL;
@@ -67,21 +69,47 @@ ft_grow_file(char* filename) {
         i++;
         if(i>=MAX_STAT_SIZE-1) break;
     }
+    tree->buf_size = i;
 
+    // cleanup
     fclose(fp);
     if (line) free(line);
+
     struct ft_trunk_t* stack[256];
-    tree->root = ft_grow_list(tree->buf_names, tree->buf_integral, i, stack, 0);
-    // tree->index = ft_build_index(tree->root);
+    tree->root  = ft_grow_list(tree->buf_names, tree->buf_integral, tree->buf_size, stack, 0);
+    tree->index = kh_init(i32);
+    ft_build_index(tree->root, tree->index);
 
     return tree;
 }
 
-// khash_t(ui32)*
-// ft_build_index(struct ft_trunk_t* trunk) {
-// 
-// }
-// 
+// build leafs index leaf_name -> trunk
+void
+ft_build_index(struct ft_trunk_t* trunk, khash_t(i32)* hashmap) {
+    
+    if(trunk == NULL || hashmap == NULL) return;
+
+    if(trunk->is_leaf) {
+        
+        int ret = 0; 
+
+        khiter_t k;
+        k = kh_put(i32, hashmap, trunk->leaf_name, &ret);
+
+        // Return code: 
+        // -1 if the operation failed; 
+        //  0 if the key is present in the hash table;
+        //  1 if the bucket is empty (never used); 
+        //  2 if the element in the bucket has been deleted.
+        if(ret == 1) kh_value(hashmap, k) = trunk;
+
+    } else {
+        ft_build_index(trunk->branches[0], hashmap);
+        ft_build_index(trunk->branches[1], hashmap);
+    }
+
+}
+
 
 // check tree for key
 // uint8_t 
@@ -95,29 +123,48 @@ ft_grow_file(char* filename) {
 // }
 
 // write key to tree
-// uint8_t 
-// ft_set_key(struct ft_tree_t* trunk, char* key, uint16_t* values, uint8_t values_count) {
-//     // iterate through leafs
-//     // get leaf`s parent trunks
-//     // set filters of parents and leaf
-// 
-//     return 0;
-// }
+uint8_t 
+ft_set_key(struct ft_tree_t* tree, 
+           char* key, 
+           uint16_t* values, 
+           uint8_t values_count) {
+    
+    kh_iter k;
+    struct ft_trunk_t* leaf  = NULL;
+    struct ft_trunk_t* trunk = NULL;
+    struct filter_t* filter  = NULL;
+    for(uint8_t i=0; i<values_count; i++) {
+        k = kh_get(i32, tree->index, values[i])
+        if(k == kh_end(tree->index)) printf("NO SUCH LEAF %u\n", values[i]);
+        else {
+            leaf = kh_value(tree->index, k);
+            for(uint8_t j=0; j<leaf->parents_size; j++) {
+                trunk = leaf->parents[j];
+                // filter_set(trunk->filter, key, strlen(key));
+            }
+        }
+    }
+
+    return 0;
+}
+
+void 
+ft_print_tree(struct ft_tree_t* tree) {
+    khiter_t k;
+    for (k = kh_begin(tree->index); k != kh_end(tree->index); ++k) {
+        if (kh_exist(tree->index, k)) {
+            struct ft_trunk_t* leaf = kh_value(tree->index, k);
+            printf(KGRN "%d" RESET KMAG " %lu" RESET " \t[ " KBLU, leaf->leaf_name, leaf->filter->size);
+            for(uint8_t j=0; j<leaf->parents_size; j++) printf("%p ", leaf->parents[j]);
+            printf(RESET "]\n");
+        }
+    }
+}
 
 // print trunk and branches
 void 
-ft_print(struct ft_trunk_t* trunk) {
-    
-    #define KNRM  "\x1B[0m"
-    #define KRED  "\x1B[31m"
-    #define KGRN  "\x1B[32m"
-    #define KYEL  "\x1B[33m"
-    #define KBLU  "\x1B[34m"
-    #define KMAG  "\x1B[35m"
-    #define KCYN  "\x1B[36m"
-    #define KWHT  "\x1B[37m"
-    #define RESET "\033[0m"
-    
+ft_print_trunk(struct ft_trunk_t* trunk) {
+
     if(trunk == NULL) return;
 
     static uint16_t level = 0;
@@ -136,8 +183,8 @@ ft_print(struct ft_trunk_t* trunk) {
 
     if(trunk == NULL) return;
     if(!trunk->is_leaf) {
-        ft_print(trunk->branches[0]);
-        ft_print(trunk->branches[1]);
+        ft_print_trunk(trunk->branches[0]);
+        ft_print_trunk(trunk->branches[1]);
     }
     level--;
 }
@@ -165,7 +212,7 @@ ft_free_tree(struct ft_tree_t* tree) {
     if(tree == NULL) return;
 
     ft_free_trunk(tree->root);
-
+    kh_destroy(i32, tree->index);
     free(tree->buf_names);
     free(tree->buf_integral);
     free(tree);
