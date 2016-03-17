@@ -10,7 +10,7 @@
 #endif
 
 #define MAX_STAT_SIZE 4096
-#define FILTER_ERROR 0.5
+#define FILTER_ERROR 0.2
 
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"

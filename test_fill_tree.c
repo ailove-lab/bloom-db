@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
         char* nl = strchr(line, '\n');
         if(nl != NULL) *nl = 0;
         ft_get_key(tree, line, results, &results_size);
-        printf(KGRN "%s " RESET KBLU, line);
-        for(uint8_t i=0;i<results_size; i++) printf("%u ", results[i]); printf(RESET "\n");
+        printf("%s ", line);
+        for(uint8_t i=0;i<results_size; i++) printf("%u ", results[i]); printf("\n");
     }
     free(line);
 
