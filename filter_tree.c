@@ -120,8 +120,10 @@ ft_get_leaf(struct ft_trunk_t* trunk,
     static uint8_t depth = 0;
     depth++;
     uint8_t f = filter_get(trunk->filter, key, strlen(key));
-    for(uint8_t i=0;i<depth-1; i++) printf("..");
-    printf("%s%p" RESET " = %d\n", trunk->is_leaf ? KGRN : KBLU, trunk->filter,  f);
+    if(DEBUG) {
+        for(uint8_t i=0;i<depth-1; i++) printf("..");
+        printf("%s%p" RESET " = %d\n", trunk->is_leaf ? KGRN : KBLU, trunk->filter,  f);
+    }
     
     if(f) {
         if (trunk->is_leaf) {
@@ -143,7 +145,7 @@ ft_get_key(struct ft_tree_t* tree,
            uint8_t*          results_size) {
 
     *results_size = 0;
-    printf("get %s\n", key);
+    if(DEBUG) printf("get %s\n", key);
     ft_get_leaf(tree->root, key, results, results_size);
 }
 
@@ -158,27 +160,73 @@ ft_set_key(struct ft_tree_t* tree,
     khiter_t k;
     struct ft_trunk_t* leaf  = NULL;
     struct ft_trunk_t* trunk = NULL;
-    for(uint8_t i=0; i<values_count; i++) printf("%u\n", values[i]);
-    printf("\n");
 
     for(uint8_t i=0; i<values_count; i++) {
         k = kh_get(i32, tree->index, values[i]);
         if(k == kh_end(tree->index)) {
-            printf("NO SUCH LEAF %u\n", values[i]);
-            return 0;
+            printf(KRED "NO SUCH LEAF " RESET " %u\n", values[i]);
         } else {
             leaf = kh_value(tree->index, k);
             for(uint8_t j=0; j<leaf->parents_size; j++) {
                 trunk = leaf->parents[j];
-                printf("set %s to %s %p" RESET "\n", key, trunk->is_leaf ? KGRN : KBLU, trunk->filter);
+                if(DEBUG) printf("set %s to %s %p" RESET "\n", key, trunk->is_leaf ? KGRN : KBLU, trunk->filter);
                 filter_set(trunk->filter, key, strlen(key));
             }
-            printf("set %s to %s %p" RESET "\n", key, leaf->is_leaf ? KGRN : KBLU, leaf->filter);
+            if(DEBUG) printf("set %s to %s %p" RESET "\n", key, leaf->is_leaf ? KGRN : KBLU, leaf->filter);
             filter_set(leaf->filter, key, strlen(key));
         }
     }
     
     return 1;
+}
+
+uint8_t ft_fill_tree(struct ft_tree_t* tree, char* filename) {
+
+    FILE * fp;
+    char * line = NULL;
+    size_t len = 0;
+    size_t read;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) return 1;
+
+    uint32_t segments[256];
+    uint8_t  segments_size = 0;
+
+    while ((read = getline(&line, &len, fp)) != -1) {
+        
+        char *seg, *tab, *end;
+        
+        end = strchr(line, '\n');     // find end / new line
+        if(end == NULL) continue;       
+        *end = 0;                     // replace it fith terminator
+    
+        tab = strchr(line, '\t');     // find tab
+        if(tab == NULL) continue;
+        *tab = 0;                    // split key/data
+        // get last space
+        seg  = strrchr(tab+1, ' ');  // find segments
+        if(seg == NULL) continue;
+        *seg = 0;                    // data to flags/segments
+        seg++;
+    
+        // iterate through segments
+        segments_size = 0;
+        char *s, *sv;
+        s = strtok_r(seg, "/", &sv);
+        while (s!=NULL) {
+            // incriment segment
+            uint32_t seg = (uint32_t) strtoul(s, NULL, 10);
+            segments[segments_size++] = seg;
+            // next token
+            s = strtok_r(NULL, "/", &sv);
+        }
+        ft_set_key(tree, line, segments, segments_size);
+    }
+
+    fclose(fp);
+    if (line) free(line);
+    return 0;
 }
 
 void 

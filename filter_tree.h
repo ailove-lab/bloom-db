@@ -5,6 +5,10 @@
 #include "filter.h"
 #include "khash.h"
 
+#ifndef DEBUG
+#define DEBUG 0
+#endif
+
 #define MAX_STAT_SIZE 4096
 #define FILTER_ERROR 0.5
 
@@ -58,6 +62,9 @@ void ft_get_key(struct ft_tree_t* trunk, char* key, uint32_t* results, uint8_t* 
 
 // write key to trunk's filter
 uint8_t ft_set_key(struct ft_tree_t* trunk, char* key, uint32_t* values, uint8_t values_size);
+
+// fill tree with data from a file
+uint8_t ft_fill_tree(struct ft_tree_t* tree, char* filename);
 
 // build leafs index leaf_name -> trunk
 void ft_build_index(struct ft_trunk_t* trunk, khash_t(i32)* hashmap);
