@@ -110,42 +110,75 @@ ft_build_index(struct ft_trunk_t* trunk, khash_t(i32)* hashmap) {
 
 }
 
+// recursively check all trunks
+void 
+ft_get_leaf(struct ft_trunk_t* trunk, 
+            char*              key, 
+            uint32_t*          results, 
+            uint8_t*           results_size) {
+
+    static uint8_t depth = 0;
+    depth++;
+    uint8_t f = filter_get(trunk->filter, key, strlen(key));
+    for(uint8_t i=0;i<depth-1; i++) printf("..");
+    printf("%s%p" RESET " = %d\n", trunk->is_leaf ? KGRN : KBLU, trunk->filter,  f);
+    
+    if(f) {
+        if (trunk->is_leaf) {
+            results[(*results_size)++] = trunk->leaf_name;
+        } else {
+            ft_get_leaf(trunk->branches[0], key, results, results_size);
+            ft_get_leaf(trunk->branches[1], key, results, results_size);
+        }
+    }
+    depth--;
+
+}
 
 // check tree for key
-// uint8_t 
-// ft_get_key(struct ft_tree_t* tree, char* key, uint16_t* values, uint8_t values_count) {
-//     
-//     // get hashes
-//     // run through branches 
-//     // return names of leafs with positive response
-// 
-//     return 0;
-// }
+void 
+ft_get_key(struct ft_tree_t* tree, 
+           char*             key, 
+           uint32_t*         results, 
+           uint8_t*          results_size) {
+
+    *results_size = 0;
+    printf("get %s\n", key);
+    ft_get_leaf(tree->root, key, results, results_size);
+}
+
 
 // write key to tree
 uint8_t 
 ft_set_key(struct ft_tree_t* tree, 
-           char* key, 
-           uint16_t* values, 
-           uint8_t values_count) {
+           char*             key, 
+           uint32_t*         values, 
+           uint8_t           values_count) {
     
-    kh_iter k;
+    khiter_t k;
     struct ft_trunk_t* leaf  = NULL;
     struct ft_trunk_t* trunk = NULL;
-    struct filter_t* filter  = NULL;
+    for(uint8_t i=0; i<values_count; i++) printf("%u\n", values[i]);
+    printf("\n");
+
     for(uint8_t i=0; i<values_count; i++) {
-        k = kh_get(i32, tree->index, values[i])
-        if(k == kh_end(tree->index)) printf("NO SUCH LEAF %u\n", values[i]);
-        else {
+        k = kh_get(i32, tree->index, values[i]);
+        if(k == kh_end(tree->index)) {
+            printf("NO SUCH LEAF %u\n", values[i]);
+            return 0;
+        } else {
             leaf = kh_value(tree->index, k);
             for(uint8_t j=0; j<leaf->parents_size; j++) {
                 trunk = leaf->parents[j];
-                // filter_set(trunk->filter, key, strlen(key));
+                printf("set %s to %s %p" RESET "\n", key, trunk->is_leaf ? KGRN : KBLU, trunk->filter);
+                filter_set(trunk->filter, key, strlen(key));
             }
+            printf("set %s to %s %p" RESET "\n", key, leaf->is_leaf ? KGRN : KBLU, leaf->filter);
+            filter_set(leaf->filter, key, strlen(key));
         }
     }
-
-    return 0;
+    
+    return 1;
 }
 
 void 

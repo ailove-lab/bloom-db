@@ -50,11 +50,14 @@ struct ft_trunk_t* ft_grow_list(uint32_t* buf_names, uint64_t* buf_integral, uin
 // grows tree by file with statistic
 struct ft_tree_t* ft_grow_file(char* filename);
 
-// // check trunk's filter for key
-// uint8_t ft_get_key(struct ft_trunk_t* trunk, char* key, uint8_t len);
-// 
-// // write key to trunk's filter
-// uint8_t ft_set_key(struct ft_trunk_t* trunk, char* key, uint8_t len);
+// recursively check all trunks
+void ft_get_leaf(struct ft_trunk_t* trunk, char* key, uint32_t* results, uint8_t* results_size);
+
+// check trunk's filter for key
+void ft_get_key(struct ft_tree_t* trunk, char* key, uint32_t* results, uint8_t* results_size);
+
+// write key to trunk's filter
+uint8_t ft_set_key(struct ft_tree_t* trunk, char* key, uint32_t* values, uint8_t values_size);
 
 // build leafs index leaf_name -> trunk
 void ft_build_index(struct ft_trunk_t* trunk, khash_t(i32)* hashmap);

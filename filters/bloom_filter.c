@@ -65,7 +65,7 @@ void filter_set(struct filter_t* filter, const char* key, size_t len) {
     uint32_t h;
 
     for (i = 0; i < f->hash_num; i++) {
-        murmur3_hash32(key, 2, i, &h);
+        murmur3_hash32(key, len, i, &h);
         h %= f->bit_size;
         bit_set(f->data, h);
     }
@@ -81,7 +81,7 @@ uint8_t filter_get(struct filter_t* filter, const char* key, size_t len) {
     uint32_t h;
 
     for (i = 0; i < f->hash_num; i++) {
-        murmur3_hash32(key, 2, i, &h);
+        murmur3_hash32(key, len, i, &h);
         h %= f->bit_size;
         if (!bit_get(f->data, h))
             return 0;
