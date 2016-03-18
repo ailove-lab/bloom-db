@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "filter_tree.h"
+#include "timer.h"
 
 struct ft_trunk_t* 
 ft_grow_list(uint32_t* buf_names, uint64_t* buf_integral, uint16_t len, struct ft_trunk_t** stack, uint8_t stack_size){
@@ -192,9 +193,19 @@ uint8_t ft_fill_tree(struct ft_tree_t* tree, char* filename) {
 
     uint32_t segments[256];
     uint8_t  segments_size = 0;
+    uint64_t line_counter  = 0;
 
     while ((read = getline(&line, &len, fp)) != -1) {
+        line_counter++;
+        if((line_counter) % 10000   == 0) fprintf(stderr, ".");
+        if((line_counter) % 1000000 == 0) {
+            fprintf(stderr, "\n");
+            timer_stop();
+            fprintf(stderr, "speed:" KGRN "%llu" RESET " kwps\n", 1000000/last_timer);
+            timer_start();
+        }
         
+
         char *seg, *tab, *end;
         
         end = strchr(line, '\n');     // find end / new line
@@ -223,7 +234,8 @@ uint8_t ft_fill_tree(struct ft_tree_t* tree, char* filename) {
         }
         ft_set_key(tree, line, segments, segments_size);
     }
-
+    timer_stop();
+    fprintf(stderr, "\n");
     fclose(fp);
     if (line) free(line);
     return 0;
