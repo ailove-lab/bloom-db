@@ -6,12 +6,14 @@
 #include "filter_tree.h"
 #include "timer.h"
 
+#define TEST_FILE "100k"
+
 int main(int argc, char** argv) {
 
     fprintf(stderr, KYEL "/// BUILD TREE ///" RESET "\n");
-    struct ft_tree_t* tree = ft_grow_file("./data/s01.stat");
+    struct ft_tree_t* tree = ft_grow_file("./data/" TEST_FILE ".stat");
     fprintf(stderr, KYEL "/// FILL TREE ///" RESET "\n");
-    ft_fill_tree(tree, "./data/s01");
+    ft_fill_tree(tree, "./data/" TEST_FILE);
 
     fprintf(stderr, KYEL "/// RESTORE KEYS ///" RESET "\n");
 
