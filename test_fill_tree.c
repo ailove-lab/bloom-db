@@ -7,9 +7,8 @@
 
 int main(int argc, char** argv) {
 
-    printf(KYEL "/// BUILD TREE ///" RESET "\n");
-    struct ft_tree_t* tree = ft_grow_file("./data/100k.stat");
-    ft_fill_tree(tree, "./data/100k");
+    struct ft_tree_t* tree = ft_grow_file("./data/s01.stat");
+    ft_fill_tree(tree, "./data/s01");
 
     char *line = NULL;
     size_t len = 0;
