@@ -30,7 +30,7 @@ struct filter_bloom_t {
 struct filter_t* filter_new(uint64_t size, float error) { 
 
     struct filter_bloom_t* filter = 
-        (struct filter_bloom_t*) malloc(sizeof(struct filter_bloom_t));
+        (struct filter_bloom_t*) calloc(1, sizeof(struct filter_bloom_t));
     
     filter->filter.size  = size;
     filter->filter.error = error;
@@ -39,7 +39,7 @@ struct filter_t* filter_new(uint64_t size, float error) {
     filter->hash_num  = (uint8_t)((float)filter->bit_size/(float)size * LN2);
     filter->entries = 0;
 
-    filter->data = malloc(filter->byte_size);
+    filter->data = calloc(filter->byte_size, sizeof(uint8_t));
 
     return (struct filter_t*) filter;
 
