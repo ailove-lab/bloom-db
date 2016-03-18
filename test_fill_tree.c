@@ -7,7 +7,7 @@
 #include "timer.h"
 
 #ifndef TEST_FILE
-#define TEST_FILE "100k"
+#define TEST_FILE "s01"
 #endif
 
 int main(int argc, char** argv) {
