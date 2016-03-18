@@ -204,7 +204,6 @@ uint8_t ft_fill_tree(struct ft_tree_t* tree, char* filename) {
             fprintf(stderr, "speed:" KGRN "%llu" RESET " kwps\n", 1000000/last_timer);
             timer_start();
         }
-        
 
         char *seg, *tab, *end;
         

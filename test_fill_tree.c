@@ -6,7 +6,9 @@
 #include "filter_tree.h"
 #include "timer.h"
 
+#ifndef TEST_FILE
 #define TEST_FILE "100k"
+#endif
 
 int main(int argc, char** argv) {
 
