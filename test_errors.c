@@ -38,15 +38,18 @@ int main(int argc, char** argv) {
         s = strtok_r(line2, " ", &sv);
         int i = 0;
         // printf(KBLU "%s" RESET, line1);
-        int p=-1, fp=0;
+        int p=0, fp=0;
         char* cur = buf;
         while (s!=NULL) {
             char* sub = strstr(line1, s);
-            if(sub) p++; else fp++;
-            if(!i)
+            if(!i) {
                 printf("%s%s " RESET, sub? KBLU : KRED, s);
-            else
+                if(!sub) break;
+            }
+            else{
+                if(sub) p++; else fp++;
                 cur += sprintf(cur, "%s" RESET, sub ? KGRN"+" : KRED"-");
+            }
 
             s = strtok_r(NULL, " ", &sv);
             i++;
@@ -54,10 +57,10 @@ int main(int argc, char** argv) {
         if(p != 0) {
             j++;
             float fpp = (float)fp / (float)p;
-            printf(KYEL"%02d/%02d %02.3f (%02.3f)"RESET"\t%s", fp, p, fpp, average_fpp, buf);
+            printf(KYEL"%02d/%02d %6.3f (%6.3f)"RESET" %s", fp, p, fpp, average_fpp, buf);
             average_fpp = average_fpp*(j-1.0)/j + fpp/j;
         } else {
-            printf(KRED "ERR"RESET KYEL"p: %d, fp: %d"RESET, p, fp);
+            printf(KRED "ERR"RESET KYEL" fp: %02d, p: %02d"RESET, fp, p);
         }
         printf("\n");
     }
