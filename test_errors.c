@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
     if (fp1 == NULL) return 1;
     float average_fpp=0;
     uint64_t j=0;
+    char buf[4096] = {0};
     while (
         getline(&line1, &len1, fp1) != -1 &&
         getline(&line2, &len2, fp2) != -1 ) {
@@ -39,18 +40,20 @@ int main(int argc, char** argv) {
         int i = 0;
         // printf(KBLU "%s" RESET, line1);
         int p=-1, fp=0;
+        char* cur = buf;
         while (s!=NULL) {
             char* sub = strstr(line1, s);
-            if(sub == NULL) fp++; else p++;
+            if(sub) p++; else fp++;
             if(!i)
-                printf(KBLU "%s " RESET, s);
+                printf("%s%s " RESET, sub? KBLU : KRED, s);
             else
-                printf("%s%s" RESET, sub == NULL ? KRED : KGRN, i ? "#" : s);
+                cur += sprintf(cur, "%s" RESET, sub ? KGRN"+" : KRED"-");
 
             s = strtok_r(NULL, " ", &sv);
             i++;
         }
         float fpp = (float)fp / (float)p;
+        printf(KYEL"%2.3f (%2.3f)"RESET" %s", fpp, average_fpp, buf);
         average_fpp = average_fpp*(j-1.0)/j + fpp/j;
         printf("\n");
     }
