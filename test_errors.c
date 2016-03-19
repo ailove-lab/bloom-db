@@ -52,8 +52,12 @@ int main(int argc, char** argv) {
             s = strtok_r(NULL, " ", &sv);
             i++;
         }
-        float fpp = (float)fp / (float)p;
-        printf(KYEL"%2.3f (%2.3f)"RESET" %s", fpp, average_fpp, buf);
+        if(p != 0) {
+            float fpp = (float)fp / (float)p;
+            printf(KYEL"%d/%d %2.3f (%2.3f)"RESET"\t%s", fp, p, fpp, average_fpp, buf);
+        } else {
+            printf(KRED "ERR"RESET KYEL"p: %d, fp: %d"RESET, p, fp);
+        }
         average_fpp = average_fpp*(j-1.0)/j + fpp/j;
         printf("\n");
     }
