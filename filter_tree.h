@@ -10,7 +10,8 @@
 #endif
 
 #define MAX_STAT_SIZE 4096
-#define FILTER_ERROR 0.5
+#define FILTER_ERROR_1 0.5
+#define FILTER_ERROR_2 0.1
 
 #include "colors.h"
 

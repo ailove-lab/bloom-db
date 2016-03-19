@@ -1,17 +1,10 @@
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 
-#define KNRM  "\x1B[0m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT  "\x1B[37m"
-#define RESET "\033[0m"
+#include "colors.h"
 
 int main(int argc, char** argv) {
 
@@ -21,18 +14,18 @@ int main(int argc, char** argv) {
         * line2 = NULL;
     size_t len1 = 0,
            len2 = 0;
-    size_t read1,
-           read2;
 
     fp1 = fopen(argv[1], "r");
     fp2 = fopen(argv[2], "r");
     if (fp1 == NULL) return 1;
-
+    float average_fpp=0;
+    uint64_t j=0;
     while (
-
         getline(&line1, &len1, fp1) != -1 &&
         getline(&line2, &len2, fp2) != -1 ) {
         
+        j++;
+
         char* end;
         end = strchr(line2, '\n');     // find end / new line
         if(end == NULL) continue;       
@@ -44,14 +37,24 @@ int main(int argc, char** argv) {
         // cut key
         s = strtok_r(line2, " ", &sv);
         int i = 0;
+        // printf(KBLU "%s" RESET, line1);
+        int p=-1, fp=0;
         while (s!=NULL) {
             char* sub = strstr(line1, s);
-            printf("%s%s" RESET, sub == NULL ? KRED : KGRN, i==0 ? s : "#");
+            if(sub == NULL) fp++; else p++;
+            if(!i)
+                printf(KBLU "%s " RESET, s);
+            else
+                printf("%s%s" RESET, sub == NULL ? KRED : KGRN, i ? "#" : s);
+
             s = strtok_r(NULL, " ", &sv);
             i++;
         }
+        float fpp = (float)fp / (float)p;
+        average_fpp = average_fpp*(j-1.0)/j + fpp/j;
         printf("\n");
     }
+    printf("average false positive / positive rate: "KRED"%f\n"RESET, average_fpp); 
 
     fclose(fp1);
     fclose(fp2);
