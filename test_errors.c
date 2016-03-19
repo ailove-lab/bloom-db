@@ -25,7 +25,6 @@ int main(int argc, char** argv) {
         getline(&line1, &len1, fp1) != -1 &&
         getline(&line2, &len2, fp2) != -1 ) {
         
-        j++;
 
         char* end;
         end = strchr(line2, '\n');     // find end / new line
@@ -53,12 +52,13 @@ int main(int argc, char** argv) {
             i++;
         }
         if(p != 0) {
+            j++;
             float fpp = (float)fp / (float)p;
-            printf(KYEL"%d/%d %2.3f (%2.3f)"RESET"\t%s", fp, p, fpp, average_fpp, buf);
+            printf(KYEL"%02d/%02d %02.3f (%02.3f)"RESET"\t%s", fp, p, fpp, average_fpp, buf);
+            average_fpp = average_fpp*(j-1.0)/j + fpp/j;
         } else {
             printf(KRED "ERR"RESET KYEL"p: %d, fp: %d"RESET, p, fp);
         }
-        average_fpp = average_fpp*(j-1.0)/j + fpp/j;
         printf("\n");
     }
     printf("average false positive / positive rate: "KRED"%f\n"RESET, average_fpp); 
