@@ -8,20 +8,26 @@
 
 int main(int argc, char** argv) {
 
-    seg_cnt = kh_init(hm64);
+    if(argc!=2) return -1;
+    
+    seg_cnt = kh_init(hmstr);
 
     char *line = NULL;
     size_t len = 0;
-    while (getline(&line, &len, stdin) != -1) raw_line_parser(line);
+    uint8_t k = atoi(argv[1]);
+    while (getline(&line, &len, stdin) != -1) raw_line_parser(line, k);
     free(line);
 
-    stat_print();
+    stat_print(k);
+    
+    free_keys();
+    kh_destroy(hmstr, seg_cnt);
     return 0;
 
 }
  
 void 
-raw_line_parser(char *line) {
+raw_line_parser(char *line, uint8_t k) {
     
     char *seg, *tab, *end;
     
@@ -55,31 +61,39 @@ raw_line_parser(char *line) {
     // printf("sorted:   ");
     // for(uint8_t i=0; i<segs_count; i++) printf(KMAG"%08x ", segs[i]); printf(RESET"\n");
 
-    uint32_t k = 2;
     uint32_t combinations = 0;
     uint32_t* results = NULL;
     cnk_list(segs, segs_count, k, &results, &combinations);
+
     // printf("combinations: "KRED"%u\n"RESET, combinations);
     // for(uint32_t i=0; i<combinations; i++) {
     //     printf("%03u: ", i+1);
-    //     printf(KGRN"%016lx"RESET, *((uint64_t*) &results[2*i]));
+    //     for(uint8_t j=0; j<k; j++)
+    //         printf(KGRN"%08x "RESET, results[k*i+j]);
     //     printf("\n");
     // }
 
     for(uint32_t i=0; i<combinations; i++) {
-        uint64_t key = *((uint64_t*) &results[2*i]);
+        uint16_t len = k*sizeof(uint32_t);
+        uint8_t* key = (uint8_t*) calloc(len, sizeof(char));
+        memcpy(key, &results[i*k], len);
+        dstr_t dstr = {key, len};
+
+        // print bytes of key
+        // for(uint8_t j=0; j<len; j++) printf("%02x ", key[j]); printf("\n");
+        
         int ret;
         khiter_t ki;
-        // incriment segment
-        ki = kh_get(hm64, seg_cnt, key);
+        ki = kh_get(hmstr, seg_cnt, dstr);
         if(ki == kh_end(seg_cnt)) {
-            ki = kh_put(hm64, seg_cnt, key, &ret);
+            ki = kh_put(hmstr, seg_cnt, dstr, &ret);
             kh_value(seg_cnt, ki) = 1;
         } else {
             kh_value(seg_cnt, ki) += 1;
         }
     }
 }
+
 
 void
 cnk_list(
@@ -127,13 +141,31 @@ cnk_count(uint32_t n, uint32_t k ) {
 
 // Print statistic
 void 
-stat_print() {
+stat_print(uint8_t k) {
+    // segment counters
+    // #define KBLU  ""
+    // #define RESET ""
+    // #define KGRN  ""
+    for (khiter_t ki=kh_begin(seg_cnt); ki!=kh_end(seg_cnt); ++ki) {
+        if (kh_exist(seg_cnt, ki)) {
+            dstr_t dstr = (dstr_t) kh_key(seg_cnt, ki);
+            uint32_t cnt = kh_value(seg_cnt, ki);
+            // if(cnt < 100) continue;
+            for(uint8_t i=0; i<k; i++) {
+                printf(KBLU"%8d "RESET, *(uint32_t*)&(dstr.str[i*sizeof(uint32_t)]));
+            }
+            printf(KGRN"%d"RESET"\n", cnt);
+        }
+    }
+}
+
+// free keys
+void 
+free_keys() {
     // segment counters
     for (khiter_t ki=kh_begin(seg_cnt); ki!=kh_end(seg_cnt); ++ki) {
         if (kh_exist(seg_cnt, ki)) {
-            uint64_t key = (uint64_t) kh_key(seg_cnt, ki);
-            uint32_t cnt = kh_value(seg_cnt, ki);
-            if(cnt>1) printf("%016lx %u\n", key, cnt);
+            free(kh_key(seg_cnt, ki).str);
         }
     }
 }

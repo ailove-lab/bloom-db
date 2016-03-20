@@ -3,20 +3,28 @@
 #include "ksort.h"
 #include "khash.h"
 
-union comb_key {
-    uint64_t seg64[1];
-    uint32_t seg32[2];
-    char     seg8 [8];
-};
-
 KSORT_INIT_GENERIC(uint32_t);
 
-KHASH_MAP_INIT_INT64(hm64, uint32_t); // key -> int
-khash_t(hm64)* seg_cnt;               // seg -> counter
+typedef struct {
+    uint8_t* str; 
+    uint16_t len;
+} dstr_t;
+static kh_inline khint_t __ac_X31_hash_dstring(const dstr_t dstr) {
+    khint_t h = (khint_t) dstr.str[0];
+    for (uint16_t i=1; i<dstr.len; ++i) h = (h << 5) - h + (khint_t) dstr.str[i];
+    return h;
+}
+#define kh_dstr_hash_func(key) __ac_X31_hash_dstring(key)
+#define kh_dstr_hash_equal(a, b) (memcmp(a.str, b.str, a.len) == 0)
+// KHASH_MAP_INIT_STR(hmstr, uint32_t); // key -> int
+KHASH_INIT(hmstr, dstr_t, uint32_t, 1, kh_dstr_hash_func, kh_dstr_hash_equal)
+
+
+khash_t(hmstr)* seg_cnt;             // seg -> counter
 
  
 void 
-raw_line_parser(char *line);
+raw_line_parser(char *line, uint8_t k);
 
 void 
 cnk_list(uint32_t arr[], uint32_t n, uint32_t k, 
@@ -33,4 +41,7 @@ uint32_t
 cnk_count(uint32_t n, uint32_t k );
 
 void 
-stat_print();
+stat_print(uint8_t k);
+
+void
+free_keys();
