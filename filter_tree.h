@@ -9,9 +9,9 @@
 #define DEBUG 0
 #endif
 
-#define MAX_STAT_SIZE 4096
-#define FILTER_ERROR_1 0.5
-#define FILTER_ERROR_2 0.1
+#define MAX_STAT_SIZE  4096
+#define FILTER_ERROR_1 0.40
+#define FILTER_ERROR_2 0.01
 
 #include "colors.h"
 
