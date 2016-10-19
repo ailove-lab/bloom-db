@@ -12,10 +12,10 @@ ft_grow_list(uint32_t* buf_names, uint64_t* buf_integral, uint16_t len, struct f
     struct ft_trunk_t* trunk = (struct ft_trunk_t*) calloc(1, sizeof(struct ft_trunk_t));
     stack[stack_size++] = trunk;
 
-    uint64_t size = buf_integral[len]-buf_integral[0];
-    trunk->filter = filter_new(size, FILTER_ERROR);
-    
     if(len == 1) {
+
+        uint64_t size = buf_integral[len]-buf_integral[0];
+        trunk->filter = filter_new(size, 0.01);
     
         trunk->is_leaf   = 1;
         trunk->leaf_name = buf_names[0];
@@ -26,7 +26,10 @@ ft_grow_list(uint32_t* buf_names, uint64_t* buf_integral, uint16_t len, struct f
         memcpy(trunk->parents, stack, (stack_size-1) * sizeof(struct ft_trunk_t*));
     
     } else {
-    
+
+        uint64_t size = buf_integral[len]-buf_integral[0];
+        trunk->filter = filter_new(size, FILTER_ERROR);
+
         trunk->is_leaf      = 0;
         trunk->leaf_name    = 0;
         trunk->parents      = NULL;
