@@ -9,6 +9,7 @@
 #define DEBUG 0
 #endif
 
+<<<<<<< HEAD
 #define MAX_STAT_SIZE 4096
 #define FILTER_ERROR 0.5
 
@@ -22,6 +23,14 @@
 #define KWHT  "\x1B[37m"
 #define RESET "\033[0m"
     
+=======
+#define MAX_STAT_SIZE  4096
+#define FILTER_ERROR_1 0.40
+#define FILTER_ERROR_2 0.01
+
+#include "colors.h"
+
+>>>>>>> e2b600b78800434b823771fc1f31e967560acb74
 // trunk
 struct ft_trunk_t;
 struct ft_trunk_t {

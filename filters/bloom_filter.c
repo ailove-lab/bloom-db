@@ -7,6 +7,7 @@
 
 #include "filter.h"
 #include "murmur3.h"
+#include "colors.h"
 
 // TODO
 // Huge filters over 4e9 bits needs uint64_t hashes!
@@ -30,7 +31,7 @@ struct filter_bloom_t {
 struct filter_t* filter_new(uint64_t size, float error) { 
 
     struct filter_bloom_t* filter = 
-        (struct filter_bloom_t*) malloc(sizeof(struct filter_bloom_t));
+        (struct filter_bloom_t*) calloc(1, sizeof(struct filter_bloom_t));
     
     filter->filter.size  = size;
     filter->filter.error = error;
@@ -39,7 +40,7 @@ struct filter_t* filter_new(uint64_t size, float error) {
     filter->hash_num  = (uint8_t)((float)filter->bit_size/(float)size * LN2);
     filter->entries = 0;
 
-    filter->data = malloc(filter->byte_size);
+    filter->data = calloc(filter->byte_size, sizeof(uint8_t));
 
     return (struct filter_t*) filter;
 
@@ -94,14 +95,14 @@ void filter_print(struct filter_t* filter) {
     if(filter == NULL) return;
 
     struct filter_bloom_t* f = (struct filter_bloom_t*) filter;
-    printf("Filter @ %p\n", filter);
-    printf("- filter -\n");
-    printf("size:  %lu\n", filter->size);
-    printf("error: %f\n", filter->error);
-    printf("- bloom -\n");
-    printf("bit_size:   %lu\n", f->bit_size);
-    printf("bit/entry:  %f\n" , (float)f->bit_size/(float)filter->size);
-    printf("byte_size:  %lu\n", f->byte_size);
-    printf("hash_num:   %u\n" , f->hash_num);
-    printf("entries:    %lu\n", f->entries);
+    fprintf(stderr, "Filter      "KGRN"%p" RESET"\n", filter);
+    fprintf(stderr, KYEL"- filter -"RESET"\n");
+    fprintf(stderr, "size:       "KBLU"%lu"RESET"\n", filter->size);
+    fprintf(stderr, "error:      "KBLU"%f" RESET"\n", filter->error);
+    fprintf(stderr, KYEL"- bloom -"RESET"\n");
+    fprintf(stderr, "bit_size:   "KBLU"%lu"RESET"\n", f->bit_size);
+    fprintf(stderr, "bit/entry:  "KBLU"%f" RESET"\n", (float)f->bit_size/(float)filter->size);
+    fprintf(stderr, "byte_size:  "KBLU"%lu"RESET"\n", f->byte_size);
+    fprintf(stderr, "hash_num:   "KBLU"%u" RESET"\n", f->hash_num);
+    fprintf(stderr, "entries:    "KBLU"%lu"RESET"\n", f->entries);
 }
