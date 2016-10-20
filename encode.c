@@ -23,7 +23,7 @@ main(int argc, char *argv[]) {
     
     if(argc!=2) return usage();
     
-    fl_t* fl = fl_encode(argv[1])
+    fl_t* fl = fl_encode(argv[1], 0.01);
     fl_print(fl);
     fl_save(fl, argv[2]);
     fl_destroy(fl);
