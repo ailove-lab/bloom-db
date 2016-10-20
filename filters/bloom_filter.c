@@ -12,9 +12,9 @@
 // TODO
 // Huge filters over 4e9 bits needs uint64_t hashes!
 
-#define bit_set(v,n)    ((v)[(n) >> 3] |= (0x1 << (0x7 - ((n) & 0x7))))
-#define bit_get(v,n)    ((v)[(n) >> 3] &  (0x1 << (0x7 - ((n) & 0x7))))
-#define bit_clr(v,n)    ((v)[(n) >> 3] &=~(0x1 << (0x7 - ((n) & 0x7))))
+#define bit_set(v,n) ((v)[(n) >> 3] |= (0x1 << (0x7 - ((n) & 0x7))))
+#define bit_get(v,n) ((v)[(n) >> 3] &  (0x1 << (0x7 - ((n) & 0x7))))
+#define bit_clr(v,n) ((v)[(n) >> 3] &=~(0x1 << (0x7 - ((n) & 0x7))))
 
 #define LN2 0.6931471805599453
 #define LN4 0.4804530139182014
